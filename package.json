@@ -1,0 +1,28 @@
+{
+  "name": "zombie-chess",
+  "version": "1.0.0",
+  "description": "Zombie movie on a chess board",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HecticElectron/zombie-chess.git"
+  },
+  "keywords": [
+    "zombie",
+    "zombies",
+    "chess"
+  ],
+  "author": "Chris Sellers",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/HecticElectron/zombie-chess/issues"
+  },
+  "homepage": "https://github.com/HecticElectron/zombie-chess#readme",
+  "dependencies": {
+    "@chrisoakman/chessboardjs": "^1.0.0",
+    "chess.js": "^1.0.0-beta.5"
+  }
+}
