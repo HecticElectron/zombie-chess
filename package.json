@@ -2,9 +2,11 @@
   "name": "zombie-chess",
   "version": "1.0.0",
   "description": "Zombie movie on a chess board",
-  "main": "index.js",
+  "main": "/src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server -p 8080"
   },
   "repository": {
     "type": "git",
@@ -22,7 +24,13 @@
   },
   "homepage": "https://github.com/HecticElectron/zombie-chess#readme",
   "dependencies": {
-    "@chrisoakman/chessboardjs": "^1.0.0",
-    "chess.js": "^1.0.0-beta.5"
+    "react": "16.8.0",
+    "react-dom": "16.8.0",
+    "react-scripts": "3.0.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4"
   }
 }
