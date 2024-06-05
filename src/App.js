@@ -1,48 +1,28 @@
-import React, { useState } from 'react';
+import React, { Component, createContext, useContext, useReducer, useRef, useState, Suspense, lazy, useEffect } from 'react';
+import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary } from './GameStateProvider';
+import Square from './Square';
 
-let chessboardState = [
-  ["r", "n", "b", "q", "k", "b", "n", "r"],
-  ["p", "p", "p", "p", "p", "p", "p", "p"],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["P", "P", "P", "P", "P", "P", "P", "P"],
-  ["P", "P", "P", "P", "P", "P", "P", "P"],
-  ["P", "P", "P", "P", "P", "P", "P", "P"]
-];
-
-function Square({ id }) {
-  return <div className="square" id={id}></div>;
-}
-
-function Row({ id }) {
+export function Row({ rowIndex }) {
   return (
-    <div className="row" id={id}>
-      <Square id={`${id}fileA`} />
-      <Square id={`${id}fileB`} />
-      <Square id={`${id}fileC`} />
-      <Square id={`${id}fileD`} />
-      <Square id={`${id}fileE`} />
-      <Square id={`${id}fileF`} />
-      <Square id={`${id}fileG`} />
-      <Square id={`${id}fileH`} />
+    <div className={`row row${rowDictionary[rowIndex]}`}>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <Square
+          rowIndex={rowIndex}
+          columnIndex={i}
+          key={`$row${rowDictionary[rowIndex]}column${columnDictionary[i]}`}
+        />
+      ))}
     </div>
   );
 }
 
-function Chessboard() {
+export function Chessboard() {
   return (
-    <div className="chessboard">
-      <Row id="row8" />
-      <Row id="row7" />
-      <Row id="row6" />
-      <Row id="row5" />
-      <Row id="row4" />
-      <Row id="row3" />
-      <Row id="row2" />
-      <Row id="row1" />
-    </div>
+      <div className='chessboard'>
+        {useGameStateContext().gameState.boardState.map((row, rowIndex) => {
+          return (<Row key={`row${rowDictionary[rowIndex]}`} rowIndex={rowIndex} />)
+        })}
+      </div>
   );
 }
 
