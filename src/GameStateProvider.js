@@ -50,12 +50,20 @@ export default function GameStateProvider ({ children }) {
     });
   }
 
-  const setSelectedSquare = (rowIndex, columnIndex) => {
-    setGameState({
-      ...gameState,
-      selectedSquare: { rowIndex, columnIndex }
-      // boardState: newBoardState
-    });
+  const setSelectedSquare = (rowIndex, columnIndex, piece) => {
+    if (typeof piece !== 'undefined') {
+      setGameState({
+        ...gameState,
+        selectedSquare: { rowIndex, columnIndex },
+        selectedPiece: piece
+      });
+    } else {
+      setGameState({
+        ...gameState,
+        selectedSquare: { rowIndex, columnIndex }
+        // boardState: newBoardState
+      });
+    }
   }
   
   const movePiece = (selectedPiece, selectedSquare, { rowIndex, columnIndex }) => {

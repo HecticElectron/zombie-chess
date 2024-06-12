@@ -64,24 +64,24 @@ function PieceImage({ piece }) {
   }
 }
 
-export function checkForLegalMove(piece, sourceSquare, { rowIndex, columnIndex }) {
+export function checkForLegalMove(piece, selectedSquare, { rowIndex, columnIndex }) {
   return true;
   // const sideAgnosticPiece = piece.toLowerCase();
   // switch (piece) {
   //   case 'p':
-  //     return checkForLegalPawnMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalPawnMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'r':
-  //     return checkForLegalRookMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalRookMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'n':
-  //     return checkForLegalKnightMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalKnightMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'b':
-  //     return checkForLegalBishopMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalBishopMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'q':
-  //     return checkForLegalQueenMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalQueenMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'k':
-  //     return checkForLegalKingMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalKingMove(selectedSquare, { rowIndex, columnIndex });
   //   case 'z':
-  //     return checkForLegalZombieMove(sourceSquare, { rowIndex, columnIndex });
+  //     return checkForLegalZombieMove(selectedSquare, { rowIndex, columnIndex });
   //   default:
   //     return false;
   // }

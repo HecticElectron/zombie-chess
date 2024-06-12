@@ -3,7 +3,7 @@ import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary
 import Piece, { checkForLegalMove } from './Piece';
 
 export default function Square({ rowIndex, columnIndex, children }) {
-  const { gameState, setSelectedPiece, setSelectedSquare, movePiece } = useGameStateContext();
+  const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
   const [squareState, setSquareState] = useState({
     isClicked: false,
@@ -45,8 +45,8 @@ export default function Square({ rowIndex, columnIndex, children }) {
             if (pieceHere) {
               //if so, tell gameState that this is the new selected piece:
               setSquareState({ isClicked: true, pieceHere });
-              setSelectedPiece(pieceHere);
-              setSelectedSquare(rowIndex, columnIndex);
+              // setSelectedPiece(pieceHere);
+              setSelectedSquare(rowIndex, columnIndex, pieceHere);
             } else {
               //otherwise, reset this square's selected value and the selected value of any other square:
             }
