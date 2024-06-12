@@ -22,7 +22,7 @@
   cursor: pointer;
   width: 50px;
   height: 50px;
-  background-color: rgb(187, 200, 214);
+  background-color: rgb(70, 70, 70);
   &.selected-source {
     background-color: rgb(255, 255, 0);
   }
@@ -57,7 +57,7 @@
 
 .row:nth-child(even) .square:nth-child(even),
 .row:nth-child(odd) .square:nth-child(odd) {
-  background-color: rgb(70, 70, 70);
+  background-color: rgb(187, 200, 214);
   &.selected-source {
     background-color: rgb(255, 255, 0);
   }

@@ -1,6 +1,7 @@
 import React, { Component, createContext, useContext, useReducer, useRef, useState, Suspense, lazy, useEffect } from 'react';
 import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary } from './GameStateProvider';
 import Square from './Square';
+import Piece from './Piece';
 
 export function Row({ rowIndex }) {
   return (
@@ -9,8 +10,15 @@ export function Row({ rowIndex }) {
         <Square
           rowIndex={rowIndex}
           columnIndex={i}
+          pieceHere={useGameStateContext().gameState.boardState[rowIndex][i]}
           key={`$row${rowDictionary[rowIndex]}column${columnDictionary[i]}`}
-        />
+        >
+          <Piece
+            rowIndex={rowIndex}
+            columnIndex={i}
+            pieceName={useGameStateContext().gameState.boardState[rowIndex][i]}
+          />
+        </Square>
       ))}
     </div>
   );

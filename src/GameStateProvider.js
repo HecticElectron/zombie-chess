@@ -3,18 +3,15 @@ import React, { createContext, useContext, useReducer, useRef, useState, Suspens
 const initialGameState = {
   isActiveGame: true,
   isWhiteTurn: true,
-  sourceSquare: {
-    rowIndex: -1,
-    columnIndex: -1
-  },
-  targetSquare: {
-    rowIndex: -1,
-    columnIndex: -1
-  },
   isCheck: false,
   isCheckmate: false,
   moveNumber: 1,
   history: [],
+  selectedPiece: '',
+  selectedSquare: {
+    rowIndex: -1,
+    columnIndex: -1
+  },
   boardState: [
     ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
     ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
@@ -46,55 +43,46 @@ export function useGameStateContext () {
 export default function GameStateProvider ({ children }) {
   const [gameState, setGameState] = useState(initialGameState);
 
-  const selectSquare = (rowIndex, columnIndex) => {
-    if (gameState.sourceSquare.rowIndex === -1) {
-      setGameState({
-        ...gameState,
-        sourceSquare: {
-          rowIndex,
-          columnIndex
-        }
-      });
-    } else {
-      setGameState({
-        ...gameState,
-        targetSquare: {
-          rowIndex,
-          columnIndex
-        }
-      });
-    }
-  };
+  const setSelectedPiece = (piece) => {
+    setGameState({
+      ...gameState,
+      selectedPiece: piece
+    });
+  }
 
-  const movePiece = (movedPiece) => {
-    const { sourceSquare, targetSquare } = gameState;
-    const boardState = gameState.boardState.map((row, rowIndex) => {
-      return row.map((piece, columnIndex) => {
-        if (rowIndex === sourceSquare.rowIndex && columnIndex === sourceSquare.columnIndex) {
+  const setSelectedSquare = (rowIndex, columnIndex) => {
+    setGameState({
+      ...gameState,
+      selectedSquare: { rowIndex, columnIndex }
+      // boardState: newBoardState
+    });
+  }
+  
+  const movePiece = (selectedPiece, selectedSquare, { rowIndex, columnIndex }) => {
+    const newBoardState = gameState.boardState.map((row, rIndex) => {
+      return row.map((currentPiece, cIndex) => {
+        if (rIndex === selectedSquare.rowIndex && cIndex === selectedSquare.columnIndex) {
           return '';
-        } else if (rowIndex === targetSquare.rowIndex && columnIndex === targetSquare.columnIndex) {
-          return movedPiece;
+        } else if (rIndex === rowIndex && cIndex === columnIndex) {
+          return selectedPiece;
         } else {
-          return piece;
+          return currentPiece;
         }
       });
     });
+
     setGameState({
       ...gameState,
-      boardState,
-      sourceSquare: {
+      selectedSquare: {
         rowIndex: -1,
         columnIndex: -1
       },
-      targetSquare: {
-        rowIndex: -1,
-        columnIndex: -1
-      }
+      boardState: newBoardState
     });
   };
 
   return (
-    <GameStateContext.Provider value={{ gameState, selectSquare, movePiece }}>
+    <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece }}>
       {children}
     </GameStateContext.Provider>
   );
