@@ -85,6 +85,7 @@ export default function GameStateProvider ({ children }) {
         rowIndex: -1,
         columnIndex: -1
       },
+      selectedPiece: '',
       boardState: newBoardState
     });
   };

@@ -5,8 +5,8 @@ import Piece, { checkForLegalMove } from './Piece';
 export default function Square({ rowIndex, columnIndex, children }) {
   const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
+  const isThisSquareSelected = selectedSquare.rowIndex === rowIndex && selectedSquare.columnIndex === columnIndex;
   const [squareState, setSquareState] = useState({
-    isClicked: false,
     pieceHere: ''
   });
 
@@ -14,11 +14,11 @@ export default function Square({ rowIndex, columnIndex, children }) {
     <div
       data-row={rowIndex}
       data-column={columnIndex}
-      className={`square ${squareState.isClicked ? 'selected-source ' : ''}row${rowDictionary[rowIndex]} column${columnDictionary[columnIndex]}`}
+      className={`square ${isThisSquareSelected ? 'selected-source ' : ''}row${rowDictionary[rowIndex]} column${columnDictionary[columnIndex]}`}
       onClick={(event) => {
-        if (squareState.isClicked) {
-          // this square was just clicked. The player wants to unclick it:
-          setSquareState({ ...squareState, isClicked: false });
+        if (isThisSquareSelected) {
+          // this square was previously clicked. The player wants to unclick it:
+          setSelectedSquare(-1, -1);
         } else {
           const selectedPiece = gameState.selectedPiece;
           // this is the first time _this_ square has been clicked this turn. 
@@ -30,12 +30,11 @@ export default function Square({ rowIndex, columnIndex, children }) {
             // check to see if that piece can be moved to this square:
             if (checkForLegalMove(selectedPiece, selectedSquare, { rowIndex, columnIndex })) {
               // if so, register the selected piece as the piece on this square:
-              setSquareState({ ...squareState, pieceHere: selectedPiece });
+              setSquareState({ pieceHere: selectedPiece });
               // then move the piece from the original square to this square:
               movePiece(selectedPiece, selectedSquare, { rowIndex, columnIndex });
             } else {
-              //if the piece can't be moved to this square, reset this square AND the originally clicked square:
-              setSquareState({ ...squareState, isClicked: false });
+              //if the piece can't be moved to this square, reset the originally clicked square:
               setSelectedSquare(-1, -1);
             }
           } else {
@@ -44,8 +43,7 @@ export default function Square({ rowIndex, columnIndex, children }) {
             const pieceHere = children.props.pieceName;
             if (pieceHere) {
               //if so, tell gameState that this is the new selected piece:
-              setSquareState({ isClicked: true, pieceHere });
-              // setSelectedPiece(pieceHere);
+              setSquareState({ pieceHere });
               setSelectedSquare(rowIndex, columnIndex, pieceHere);
             } else {
               //otherwise, reset this square's selected value and the selected value of any other square:
