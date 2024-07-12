@@ -5,6 +5,7 @@ import Piece, { checkForLegalMove } from './Piece';
 export default function Square({ rowIndex, columnIndex, children }) {
   const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
+  const boardState = gameState.boardState;
   const isThisSquareSelected = selectedSquare.rowIndex === rowIndex && selectedSquare.columnIndex === columnIndex;
   const [squareState, setSquareState] = useState({
     pieceHere: ''
@@ -28,7 +29,7 @@ export default function Square({ rowIndex, columnIndex, children }) {
             // this is the second square clicked this turn.
             // (The first square clicked always has a piece on it, so selectedPiece is never blank.)
             // check to see if that piece can be moved to this square:
-            if (checkForLegalMove(selectedPiece, selectedSquare, { rowIndex, columnIndex })) {
+            if (checkForLegalMove(selectedPiece, selectedSquare, { rowIndex, columnIndex }, boardState)) {
               // if so, register the selected piece as the piece on this square:
               setSquareState({ pieceHere: selectedPiece });
               // then move the piece from the original square to this square:

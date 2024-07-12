@@ -1,5 +1,5 @@
 import React, { Component, createContext, useContext, useReducer, useRef, useState, Suspense, lazy, useEffect } from 'react';
-import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary } from './GameStateProvider';
+import GameStateProvider, { rowDictionary, columnDictionary } from './GameStateProvider';
 
 class ErrorBoundary extends Component {
   state = { error: null };
@@ -64,27 +64,115 @@ function PieceImage({ piece }) {
   }
 }
 
-export function checkForLegalMove(piece, selectedSquare, { rowIndex, columnIndex }) {
+function isMoveObstructed(startingPosition, endingPosition, boardState) {
+  const { startRow, startColumn } = startingPosition;
+  const { endRow, endColumn } = endingPosition;
+  const rowDiff = Math.abs(endRow - startRow);
+  const columnDiff = Math.abs(endColumn - startColumn);
+  const rowDirection = endRow > startRow ? 1 : -1;
+  const columnDirection = endColumn > startColumn ? 1 : -1;
+
+  if (rowDiff === 0) {
+    for (let column = startColumn + columnDirection; column !== endColumn; column += columnDirection) {
+      // check if square (startRow, column) is occupied
+      if (boardState[startRow][column] !== '') {
+        return true; // Square is occupied, move is obstructed
+      }
+    }
+  } else if (columnDiff === 0) {
+    for (let row = startRow + rowDirection; row !== endRow; row += rowDirection) {
+      // check if square (row, startColumn) is occupied
+      if (boardState[row][startColumn] !== '') {
+        return true; // Square is occupied, move is obstructed
+      }
+    }
+  } else if (rowDiff === columnDiff) {
+    for (let rowAndColumn = 1; rowAndColumn < rowDiff; rowAndColumn++) {
+      const row = startRow + (rowAndColumn * rowDirection);
+      const column = startColumn + (rowAndColumn * columnDirection);
+      // check if square (row, column) is occupied
+      if (boardState[row][column] !== -1) {
+        return true; // Square is occupied, move is obstructed
+      }
+    }
+  } else {
+    return true; // Invalid move, not along a straight or diagonal line
+  }
+
+  return false; // Move is unobstructed
+}
+
+function isMoveCapture(endingPosition, boardState) {
+  const { endRow, endColumn } = endingPosition;
+  return boardState[endRow][endColumn] !== '';
+}
+
+function isPawnStartingMove(startingPosition) {
+  const { startRow } = startingPosition;
+  return startRow === 1 || startRow === 6;
+}
+
+function isMoveCorrectDistanceAndDirection(piece, startingPosition, endingPosition, boardState) {
+  const { startRow, startColumn } = startingPosition;
+  const { endRow, endColumn } = endingPosition;
+  const rowDiff = Math.abs(endRow - startRow);
+  const columnDiff = Math.abs(endColumn - startColumn);
+
+  if (rowDiff === 0 && columnDiff === 0) {
+    return false; // Same position, not a valid move
+  }
+
+  switch (piece) {
+    case 'p':
+    case 'z':
+      if (isMoveCapture(endingPosition, boardState)) {
+        return rowDiff === 1 && columnDiff === 1;
+      } else {
+        if (isPawnStartingMove(startingPosition)) {
+          return columnDiff === 0 && (rowDiff === 1 || rowDiff === 2);
+        }
+        return rowDiff === 1 && columnDiff === 0;
+      }
+    case 'r':
+      return rowDiff === 0 || columnDiff === 0;
+    case 'n':
+      return (rowDiff === 2 && columnDiff === 1) || (rowDiff === 1 && columnDiff === 2);
+    case 'b':
+      return rowDiff === columnDiff;
+    case 'q':
+      return (rowDiff === 0 || columnDiff === 0) || (rowDiff === columnDiff);
+    case 'k':
+      return rowDiff <= 1 && columnDiff <= 1;
+    default:
+      return false;
+  }
+  
+}
+
+function checkForPieceColor(piece) {
+  return piece === piece.toLowerCase() ? 'white' : 'black';
+}
+
+export function checkForLegalMove(piece, selectedSquare, { rowIndex, columnIndex }, boardState) {
+  const sideAgnosticPiece = piece.toLowerCase();
+  const startingPosition = { startRow: selectedSquare.rowIndex, startColumn: selectedSquare.columnIndex };
+  const endingPosition = { endRow: rowIndex, endColumn: columnIndex };
+
+  // If the move is a capture and the piece at the end of the move is the same color as the attacking piece, return false:
+  if (isMoveCapture(endingPosition, boardState)) {
+    const startingPieceColor = checkForPieceColor(piece);
+    const endingPieceColor = checkForPieceColor(boardState[rowIndex][columnIndex]);
+    if (startingPieceColor === endingPieceColor) {
+      return false;
+    }
+  }
+  if (sideAgnosticPiece !== 'n' && isMoveObstructed(startingPosition, endingPosition, boardState)) {
+    return false;
+  }
+  if (!isMoveCorrectDistanceAndDirection(sideAgnosticPiece, startingPosition, endingPosition, boardState)) {
+    return false;
+  }
   return true;
-  // const sideAgnosticPiece = piece.toLowerCase();
-  // switch (piece) {
-  //   case 'p':
-  //     return checkForLegalPawnMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'r':
-  //     return checkForLegalRookMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'n':
-  //     return checkForLegalKnightMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'b':
-  //     return checkForLegalBishopMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'q':
-  //     return checkForLegalQueenMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'k':
-  //     return checkForLegalKingMove(selectedSquare, { rowIndex, columnIndex });
-  //   case 'z':
-  //     return checkForLegalZombieMove(selectedSquare, { rowIndex, columnIndex });
-  //   default:
-  //     return false;
-  // }
 }
 
 export default function Piece({ rowIndex, columnIndex, pieceName }) {
