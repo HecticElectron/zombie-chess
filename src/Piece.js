@@ -90,10 +90,8 @@ function isMoveObstructed(startingPosition, endingPosition, boardState) {
     for (let rowAndColumn = 1; rowAndColumn < rowDiff; rowAndColumn++) {
       const row = startRow + (rowAndColumn * rowDirection);
       const column = startColumn + (rowAndColumn * columnDirection);
-      // console.log("Row is", row, "and column is", column);
       // check if square (row, column) is occupied
       if (boardState[row][column] !== '') {
-        // console.log("Square at row #", row, "and column #", column, "is occupied by", boardState[row][column]);
         return true; // Square is occupied, move is obstructed
       }
     }
@@ -126,13 +124,18 @@ function isMoveCorrectDistanceAndDirection(piece, startingPosition, endingPositi
 
   switch (piece) {
     case 'p':
-    case 'z':
       if (isMoveCapture(endingPosition, boardState)) {
         return rowDiff === 1 && columnDiff === 1;
       } else {
         if (isPawnStartingMove(startingPosition)) {
           return columnDiff === 0 && (rowDiff === 1 || rowDiff === 2);
         }
+        return rowDiff === 1 && columnDiff === 0;
+      }
+    case 'z':
+      if (isMoveCapture(endingPosition, boardState)) {
+        return rowDiff === 1 && columnDiff === 1;
+      } else {
         return rowDiff === 1 && columnDiff === 0;
       }
     case 'r':
@@ -165,21 +168,16 @@ export function checkForLegalMove(piece, startingSquare, endingSquare, boardStat
     const startingPieceColor = checkForPieceColor(piece);
     const endingPieceColor = checkForPieceColor(boardState[endingPosition.endRow][endingPosition.endColumn]);
     if (startingPieceColor === endingPieceColor) {
-      // console.log("Trying to capture own piece. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
       return false;
     }
-    // console.log("Trying to capture opponent's piece. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
     return 'capture';
   }
   if (sideAgnosticPiece !== 'n' && isMoveObstructed(startingPosition, endingPosition, boardState)) {
-    // console.log("Piece is not knight and move is obstructed. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
     return false;
   }
   if (!isMoveCorrectDistanceAndDirection(sideAgnosticPiece, startingPosition, endingPosition, boardState)) {
-    // console.log("Move is not correct distance or direction is ", startingPosition, " and endingPosition is ", endingPosition);
     return false;
   }
-  // console.log("Move is legal. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
   return 'move';
 }
 

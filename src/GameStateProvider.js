@@ -3,7 +3,6 @@ import React, { createContext, useContext, useReducer, useRef, useState, Suspens
 const initialGameState = {
   isActiveGame: true,
   isWhiteTurn: true,
-  // isCapture: false,
   isCheck: false,
   isCheckmate: false,
   moveNumber: 1,
@@ -66,13 +65,6 @@ export default function GameStateProvider ({ children }) {
     }
   }
 
-  // const setIsCapture = () => {
-  //   setGameState({
-  //     ...gameState,
-  //     isCapture: true
-  //   })
-  // }
-  
   const movePiece = (selectedPiece, startingSquare, endingSquare) => {
     const newBoardState = gameState.boardState.map((row, rowIndex) => {
       return row.map((currentPiece, columnIndex) => {
@@ -93,7 +85,6 @@ export default function GameStateProvider ({ children }) {
         columnIndex: -1
       },
       selectedPiece: '',
-      // isCapture: false,
       boardState: newBoardState,
       isWhiteTurn: !gameState.isWhiteTurn
     });
@@ -122,7 +113,6 @@ export default function GameStateProvider ({ children }) {
         columnIndex: -1
       },
       selectedPiece: '',
-      // isCapture: false,
       boardState: newBoardState,
       isWhiteTurn: !gameState.isWhiteTurn
     });
