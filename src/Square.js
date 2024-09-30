@@ -3,13 +3,10 @@ import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary
 import Piece, { checkForLegalMove } from './Piece';
 
 export default function Square({ rowIndex, columnIndex, children }) {
-  const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
+  const { gameState, setSelectedSquare, movePiece, capturePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
   const boardState = gameState.boardState;
   const isThisSquareSelected = selectedSquare.rowIndex === rowIndex && selectedSquare.columnIndex === columnIndex;
-  const [squareState, setSquareState] = useState({
-    pieceHere: ''
-  });
 
   return (
     <div
@@ -19,7 +16,7 @@ export default function Square({ rowIndex, columnIndex, children }) {
       onClick={(event) => {
         if (isThisSquareSelected) {
           // this square was previously clicked. The player wants to unclick it:
-          setSelectedSquare(-1, -1);
+          setSelectedSquare(-1, -1, '');
         } else {
           const selectedPiece = gameState.selectedPiece;
           // this is the first time _this_ square has been clicked this turn. 
@@ -29,25 +26,32 @@ export default function Square({ rowIndex, columnIndex, children }) {
             // this is the second square clicked this turn.
             // (The first square clicked always has a piece on it, so selectedPiece is never blank.)
             // check to see if that piece can be moved to this square:
-            if (checkForLegalMove(selectedPiece, selectedSquare, { rowIndex, columnIndex }, boardState)) {
-              // if so, register the selected piece as the piece on this square:
-              setSquareState({ pieceHere: selectedPiece });
+            const startingSquare = selectedSquare;
+            const endingSquare = { rowIndex, columnIndex };
+            const moveType = checkForLegalMove(selectedPiece, startingSquare, endingSquare, boardState);
+            if (moveType === 'move') {
               // then move the piece from the original square to this square:
-              movePiece(selectedPiece, selectedSquare, { rowIndex, columnIndex });
+              movePiece(selectedPiece, startingSquare, endingSquare);
+            } else if (moveType === 'capture') {
+              // then move the piece from the original square to this square:
+              capturePiece(selectedPiece, startingSquare, endingSquare);
             } else {
               //if the piece can't be moved to this square, reset the originally clicked square:
-              setSelectedSquare(-1, -1);
+              setSelectedSquare(-1, -1, '');
             }
           } else {
             // this is the _first_ square clicked this turn. No piece has been selected yet.
-            // see if a piece is on this square:
+            // see if a piece is on this square,
+            // and see if it's that piece's turn:
             const pieceHere = children.props.pieceName;
-            if (pieceHere) {
-              //if so, tell gameState that this is the new selected piece:
-              setSquareState({ pieceHere });
+            const isWhiteTurn = gameState.isWhiteTurn;
+            const isWhitePiece = pieceHere === pieceHere.toUpperCase();
+            if (pieceHere && isWhitePiece === isWhiteTurn) {
+              //if there's a piece there, and it's the right color piece, tell gameState that this is the selected piece:
               setSelectedSquare(rowIndex, columnIndex, pieceHere);
             } else {
               //otherwise, reset this square's selected value and the selected value of any other square:
+              setSelectedSquare(-1, -1, '');
             }
           }
         }

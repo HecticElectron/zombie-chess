@@ -90,8 +90,10 @@ function isMoveObstructed(startingPosition, endingPosition, boardState) {
     for (let rowAndColumn = 1; rowAndColumn < rowDiff; rowAndColumn++) {
       const row = startRow + (rowAndColumn * rowDirection);
       const column = startColumn + (rowAndColumn * columnDirection);
+      // console.log("Row is", row, "and column is", column);
       // check if square (row, column) is occupied
-      if (boardState[row][column] !== -1) {
+      if (boardState[row][column] !== '') {
+        // console.log("Square at row #", row, "and column #", column, "is occupied by", boardState[row][column]);
         return true; // Square is occupied, move is obstructed
       }
     }
@@ -153,26 +155,32 @@ function checkForPieceColor(piece) {
   return piece === piece.toLowerCase() ? 'white' : 'black';
 }
 
-export function checkForLegalMove(piece, selectedSquare, { rowIndex, columnIndex }, boardState) {
+export function checkForLegalMove(piece, startingSquare, endingSquare, boardState) {
   const sideAgnosticPiece = piece.toLowerCase();
-  const startingPosition = { startRow: selectedSquare.rowIndex, startColumn: selectedSquare.columnIndex };
-  const endingPosition = { endRow: rowIndex, endColumn: columnIndex };
+  const startingPosition = { startRow: startingSquare.rowIndex, startColumn: startingSquare.columnIndex };
+  const endingPosition = { endRow: endingSquare.rowIndex, endColumn: endingSquare.columnIndex };
 
   // If the move is a capture and the piece at the end of the move is the same color as the attacking piece, return false:
   if (isMoveCapture(endingPosition, boardState)) {
     const startingPieceColor = checkForPieceColor(piece);
-    const endingPieceColor = checkForPieceColor(boardState[rowIndex][columnIndex]);
+    const endingPieceColor = checkForPieceColor(boardState[endingPosition.endRow][endingPosition.endColumn]);
     if (startingPieceColor === endingPieceColor) {
+      // console.log("Trying to capture own piece. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
       return false;
     }
+    // console.log("Trying to capture opponent's piece. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
+    return 'capture';
   }
   if (sideAgnosticPiece !== 'n' && isMoveObstructed(startingPosition, endingPosition, boardState)) {
+    // console.log("Piece is not knight and move is obstructed. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
     return false;
   }
   if (!isMoveCorrectDistanceAndDirection(sideAgnosticPiece, startingPosition, endingPosition, boardState)) {
+    // console.log("Move is not correct distance or direction is ", startingPosition, " and endingPosition is ", endingPosition);
     return false;
   }
-  return true;
+  // console.log("Move is legal. startingPosition is ", startingPosition, " and endingPosition is ", endingPosition);
+  return 'move';
 }
 
 export default function Piece({ rowIndex, columnIndex, pieceName }) {

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useReducer, useRef, useState, Suspens
 const initialGameState = {
   isActiveGame: true,
   isWhiteTurn: true,
+  // isCapture: false,
   isCheck: false,
   isCheckmate: false,
   moveNumber: 1,
@@ -61,17 +62,23 @@ export default function GameStateProvider ({ children }) {
       setGameState({
         ...gameState,
         selectedSquare: { rowIndex, columnIndex }
-        // boardState: newBoardState
       });
     }
   }
+
+  // const setIsCapture = () => {
+  //   setGameState({
+  //     ...gameState,
+  //     isCapture: true
+  //   })
+  // }
   
-  const movePiece = (selectedPiece, selectedSquare, { rowIndex, columnIndex }) => {
-    const newBoardState = gameState.boardState.map((row, rIndex) => {
-      return row.map((currentPiece, cIndex) => {
-        if (rIndex === selectedSquare.rowIndex && cIndex === selectedSquare.columnIndex) {
+  const movePiece = (selectedPiece, startingSquare, endingSquare) => {
+    const newBoardState = gameState.boardState.map((row, rowIndex) => {
+      return row.map((currentPiece, columnIndex) => {
+        if (rowIndex === startingSquare.rowIndex && columnIndex === startingSquare.columnIndex) {
           return '';
-        } else if (rIndex === rowIndex && cIndex === columnIndex) {
+        } else if (rowIndex === endingSquare.rowIndex && columnIndex === endingSquare.columnIndex) {
           return selectedPiece;
         } else {
           return currentPiece;
@@ -86,12 +93,43 @@ export default function GameStateProvider ({ children }) {
         columnIndex: -1
       },
       selectedPiece: '',
-      boardState: newBoardState
+      // isCapture: false,
+      boardState: newBoardState,
+      isWhiteTurn: !gameState.isWhiteTurn
+    });
+  };
+
+  const capturePiece = (selectedPiece, startingSquare, endingSquare) => {
+    const newBoardState = gameState.boardState.map((row, rowIndex) => {
+      return row.map((currentPiece, columnIndex) => {
+        if (rowIndex === startingSquare.rowIndex && columnIndex === startingSquare.columnIndex) {
+          if (selectedPiece === 'Z') {
+            return 'Z';
+          }
+          return '';
+        } else if (rowIndex === endingSquare.rowIndex && columnIndex === endingSquare.columnIndex) {
+          return selectedPiece;
+        } else {
+          return currentPiece;
+        }
+      });
+    });
+
+    setGameState({
+      ...gameState,
+      selectedSquare: {
+        rowIndex: -1,
+        columnIndex: -1
+      },
+      selectedPiece: '',
+      // isCapture: false,
+      boardState: newBoardState,
+      isWhiteTurn: !gameState.isWhiteTurn
     });
   };
 
   return (
-    <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece }}>
+    <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece, capturePiece }}>
       {children}
     </GameStateContext.Provider>
   );
