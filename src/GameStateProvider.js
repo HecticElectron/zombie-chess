@@ -65,36 +65,11 @@ export default function GameStateProvider ({ children }) {
     }
   }
 
-  const movePiece = (selectedPiece, startingSquare, endingSquare) => {
+  const movePiece = (selectedPiece, startingSquare, endingSquare, isCapture) => {
     const newBoardState = gameState.boardState.map((row, rowIndex) => {
       return row.map((currentPiece, columnIndex) => {
         if (rowIndex === startingSquare.rowIndex && columnIndex === startingSquare.columnIndex) {
-          return '';
-        } else if (rowIndex === endingSquare.rowIndex && columnIndex === endingSquare.columnIndex) {
-          return selectedPiece;
-        } else {
-          return currentPiece;
-        }
-      });
-    });
-
-    setGameState({
-      ...gameState,
-      selectedSquare: {
-        rowIndex: -1,
-        columnIndex: -1
-      },
-      selectedPiece: '',
-      boardState: newBoardState,
-      isWhiteTurn: !gameState.isWhiteTurn
-    });
-  };
-
-  const capturePiece = (selectedPiece, startingSquare, endingSquare) => {
-    const newBoardState = gameState.boardState.map((row, rowIndex) => {
-      return row.map((currentPiece, columnIndex) => {
-        if (rowIndex === startingSquare.rowIndex && columnIndex === startingSquare.columnIndex) {
-          if (selectedPiece === 'Z') {
+          if (isCapture === true && selectedPiece === 'Z') {
             return 'Z';
           }
           return '';
@@ -119,7 +94,7 @@ export default function GameStateProvider ({ children }) {
   };
 
   return (
-    <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece, capturePiece }}>
+    <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece }}>
       {children}
     </GameStateContext.Provider>
   );

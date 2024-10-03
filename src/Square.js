@@ -3,7 +3,7 @@ import GameStateProvider, { useGameStateContext, rowDictionary, columnDictionary
 import Piece, { checkForLegalMove } from './Piece';
 
 export default function Square({ rowIndex, columnIndex, children }) {
-  const { gameState, setSelectedSquare, movePiece, capturePiece } = useGameStateContext();
+  const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
   const boardState = gameState.boardState;
   const isThisSquareSelected = selectedSquare.rowIndex === rowIndex && selectedSquare.columnIndex === columnIndex;
@@ -31,10 +31,10 @@ export default function Square({ rowIndex, columnIndex, children }) {
             const moveType = checkForLegalMove(selectedPiece, startingSquare, endingSquare, boardState);
             if (moveType === 'move') {
               // then move the piece from the original square to this square:
-              movePiece(selectedPiece, startingSquare, endingSquare);
+              movePiece(selectedPiece, startingSquare, endingSquare, false);
             } else if (moveType === 'capture') {
               // then move the piece from the original square to this square:
-              capturePiece(selectedPiece, startingSquare, endingSquare);
+              movePiece(selectedPiece, startingSquare, endingSquare, true);
             } else {
               //if the piece can't be moved to this square, reset the originally clicked square:
               setSelectedSquare(-1, -1, '');
