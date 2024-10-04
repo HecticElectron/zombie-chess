@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useRef, useState, Suspense, lazy, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useRef, useState, Suspense, lazy, useEffect, useCallback } from 'react';
 
 const initialGameState = {
   isActiveGame: true,
@@ -6,22 +6,23 @@ const initialGameState = {
   isCheck: false,
   isCheckmate: false,
   moveNumber: 1,
-  history: [],
+  boardStates: [
+    [
+      ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
+      ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
+      ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
+    ]
+  ],
   selectedPiece: '',
   selectedSquare: {
     rowIndex: -1,
     columnIndex: -1
-  },
-  boardState: [
-    ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
-    ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
-    ['Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z', 'Z'],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
-  ]
+  }
 };
 
 export const rowDictionary = [
@@ -33,8 +34,6 @@ export const columnDictionary = [
 ];
 
 const GameStateContext = createContext();
-
-// export const useGameStateContext = () => useContext(GameStateContext);
 
 export function useGameStateContext () {
   return useContext(GameStateContext);
@@ -66,7 +65,9 @@ export default function GameStateProvider ({ children }) {
   }
 
   const movePiece = (selectedPiece, startingSquare, endingSquare, isCapture) => {
-    const newBoardState = gameState.boardState.map((row, rowIndex) => {
+    let boardStates = gameState.boardStates;
+    const boardState = boardStates[boardStates.length - 1];
+    const newBoardState = boardState.map((row, rowIndex) => {
       return row.map((currentPiece, columnIndex) => {
         if (rowIndex === startingSquare.rowIndex && columnIndex === startingSquare.columnIndex) {
           if (isCapture === true && selectedPiece === 'Z') {
@@ -81,6 +82,8 @@ export default function GameStateProvider ({ children }) {
       });
     });
 
+    boardStates.push(newBoardState);
+
     setGameState({
       ...gameState,
       selectedSquare: {
@@ -88,10 +91,54 @@ export default function GameStateProvider ({ children }) {
         columnIndex: -1
       },
       selectedPiece: '',
-      boardState: newBoardState,
+      boardStates: boardStates,
       isWhiteTurn: !gameState.isWhiteTurn
     });
   };
+
+  let bufferedBoardStates = [];
+
+  const handleKeyDown = event => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+      let boardStates = gameState.boardStates;
+
+      if (event.shiftKey && bufferedBoardStates.length) { // Redo
+        boardStates.push(bufferedBoardStates.pop());
+
+        setGameState({
+          ...gameState,
+          selectedSquare: {
+            rowIndex: -1,
+            columnIndex: -1
+          },
+          selectedPiece: '',
+          boardStates: boardStates,
+          isWhiteTurn: !!(boardStates.length % 2)
+        });
+      } else if (!event.shiftKey && boardStates.length > 1) { // Undo
+        bufferedBoardStates.push(boardStates.pop());
+
+        setGameState({
+          ...gameState,
+          selectedSquare: {
+            rowIndex: -1,
+            columnIndex: -1
+          },
+          selectedPiece: '',
+          boardStates: boardStates,
+          isWhiteTurn: !!(boardStates.length % 2)
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <GameStateContext.Provider value={{ gameState, setSelectedPiece, setSelectedSquare, movePiece }}>

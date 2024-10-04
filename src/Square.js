@@ -5,7 +5,8 @@ import Piece, { checkForLegalMove } from './Piece';
 export default function Square({ rowIndex, columnIndex, children }) {
   const { gameState, setSelectedSquare, movePiece } = useGameStateContext();
   const selectedSquare = gameState.selectedSquare;
-  const boardState = gameState.boardState;
+  const boardStates = gameState.boardStates;
+  const boardState = boardStates[boardStates.length - 1];
   const isThisSquareSelected = selectedSquare.rowIndex === rowIndex && selectedSquare.columnIndex === columnIndex;
 
   return (

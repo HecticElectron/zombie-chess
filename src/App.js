@@ -4,19 +4,21 @@ import Square from './Square';
 import Piece from './Piece';
 
 export function Row({ rowIndex }) {
+  const boardStates = useGameStateContext().gameState.boardStates; 
+  const boardState = boardStates[boardStates.length - 1];
   return (
     <div className={`row row${rowDictionary[rowIndex]}`}>
       {Array.from({ length: 8 }).map((_, i) => (
         <Square
           rowIndex={rowIndex}
           columnIndex={i}
-          pieceHere={useGameStateContext().gameState.boardState[rowIndex][i]}
+          pieceHere={boardState[rowIndex][i]}
           key={`$row${rowDictionary[rowIndex]}column${columnDictionary[i]}`}
         >
           <Piece
             rowIndex={rowIndex}
             columnIndex={i}
-            pieceName={useGameStateContext().gameState.boardState[rowIndex][i]}
+            pieceName={boardState[rowIndex][i]}
           />
         </Square>
       ))}
@@ -25,9 +27,11 @@ export function Row({ rowIndex }) {
 }
 
 export function Chessboard() {
+  const boardStates = useGameStateContext().gameState.boardStates; 
+  const boardState = boardStates[boardStates.length - 1];
   return (
       <div className='chessboard'>
-        {useGameStateContext().gameState.boardState.map((row, rowIndex) => {
+        {boardState.map((row, rowIndex) => {
           return (<Row key={`row${rowDictionary[rowIndex]}`} rowIndex={rowIndex} />)
         })}
       </div>
